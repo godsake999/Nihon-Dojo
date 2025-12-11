@@ -1,6 +1,8 @@
 {
   "short_name": "N5Dojo",
   "name": "JLPT N5/N4 Verb Dojo",
+  "id": "/",
+  "description": "Master Japanese N5/N4 verbs, conjugation, and grammar with this interactive dojo.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -21,5 +23,7 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#0f172a",
-  "background_color": "#f1f5f9"
+  "background_color": "#f1f5f9",
+  "orientation": "portrait",
+  "categories": ["education", "productivity", "utilities"]
 }
