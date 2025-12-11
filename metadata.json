@@ -1,0 +1,5 @@
+{
+  "name": "JLPT Dojo",
+  "description": "A comprehensive mastery tool for JLPT N5/N4 learners featuring a custom verb conjugation engine, spaced repetition flashcards, and exam simulations.",
+  "requestFramePermissions": []
+}
