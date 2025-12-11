@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, HelpCircle, CheckCircle, XCircle } from 'lucide-react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, HelpCircle, CheckCircle, XCircle, Layers, Keyboard, RotateCw, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { VERBS } from '../constants';
 import { conjugate } from '../utils/conjugator';
 import { Verb, ConjugationForm } from '../types';
@@ -8,6 +8,179 @@ import { Verb, ConjugationForm } from '../types';
 interface VerbGymProps {
   onAddXP: (amount: number) => void;
 }
+
+type GymMode = 'flashcard' | 'drill';
+
+const VerbGym: React.FC<VerbGymProps> = ({ onAddXP }) => {
+  const [mode, setMode] = useState<GymMode>('drill');
+
+  return (
+    <div className="h-full flex flex-col items-center bg-dojo-bg">
+       {/* Mode Toggle */}
+       <div className="w-full max-w-sm px-6 pt-6 pb-2">
+        <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 flex">
+          <button
+            onClick={() => setMode('flashcard')}
+            className={`flex-1 py-2 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${
+              mode === 'flashcard' ? 'bg-dojo-indigo text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            <Layers size={16} /> Flashcards
+          </button>
+          <button
+            onClick={() => setMode('drill')}
+            className={`flex-1 py-2 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${
+              mode === 'drill' ? 'bg-dojo-indigo text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            <Keyboard size={16} /> Input Drill
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 w-full max-w-sm p-6 flex flex-col justify-center">
+        <AnimatePresence mode="wait">
+          {mode === 'flashcard' ? (
+            <VerbFlashcard key="flashcard" onAddXP={onAddXP} />
+          ) : (
+            <VerbDrill key="drill" onAddXP={onAddXP} />
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+// ==========================================
+// SUB-COMPONENT: FLASHCARD MODE
+// ==========================================
+const VerbFlashcard: React.FC<{ onAddXP: (n: number) => void }> = ({ onAddXP }) => {
+  const [queue] = useState(VERBS);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [direction, setDirection] = useState(0);
+
+  const currentVerb = queue[currentIndex % queue.length];
+
+  const handleNext = (known: boolean) => {
+    setDirection(known ? 1 : -1);
+    
+    setTimeout(() => {
+      if (known) onAddXP(5);
+      setIsFlipped(false);
+      setDirection(0);
+      setCurrentIndex(prev => (prev + 1) % queue.length);
+    }, 200);
+  };
+
+  const flipCard = () => setIsFlipped(!isFlipped);
+
+  // Pre-calculate conjugations for the back of the card
+  const formsToDisplay: ConjugationForm[] = ['masu', 'te', 'ta', 'nai', 'potential'];
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      exit={{ opacity: 0, y: -10 }}
+      className="flex flex-col items-center w-full h-full"
+    >
+      <div className="relative w-full aspect-[3/4] perspective-1000">
+        <AnimatePresence mode="wait">
+            <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0, scale: 0.9, x: direction === 0 ? 0 : (direction * 50) }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.9, x: direction * 200 }}
+                transition={{ duration: 0.2 }}
+                className="w-full h-full relative cursor-pointer group"
+                onClick={flipCard}
+                style={{ transformStyle: 'preserve-3d' }}
+            >
+                {/* FRONT */}
+                <motion.div 
+                    className="absolute w-full h-full bg-white rounded-3xl shadow-xl flex flex-col items-center justify-center backface-hidden border border-gray-200 overflow-hidden"
+                    animate={{ rotateY: isFlipped ? 180 : 0 }}
+                    transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+                    style={{ backfaceVisibility: 'hidden' }}
+                >
+                    <div className="absolute top-0 w-full h-2 bg-gradient-to-r from-dojo-indigo to-blue-500" />
+                    
+                    <span className={`absolute top-6 right-6 px-2 py-1 rounded text-xs font-bold uppercase ${
+                      currentVerb.group === 'v1' ? 'bg-blue-100 text-blue-700' :
+                      currentVerb.group === 'v2' ? 'bg-green-100 text-green-700' :
+                      'bg-purple-100 text-purple-700'
+                    }`}>
+                      {currentVerb.group === 'v1' ? 'Godan' : currentVerb.group === 'v2' ? 'Ichidan' : 'Irregular'}
+                    </span>
+
+                    <h1 className="text-6xl font-black text-gray-800 mb-2">{currentVerb.kanji}</h1>
+                    <p className="text-2xl text-gray-400 font-mono mb-6">{currentVerb.kana}</p>
+                    
+                    <div className="bg-gray-50 px-4 py-2 rounded-lg border border-gray-100">
+                      <p className="text-gray-600 font-bold">{currentVerb.meaning}</p>
+                    </div>
+
+                    <p className="text-gray-300 text-xs mt-8 uppercase font-bold tracking-wider animate-pulse">Tap to see forms</p>
+                </motion.div>
+
+                {/* BACK */}
+                <motion.div 
+                    className="absolute w-full h-full bg-slate-800 rounded-3xl shadow-xl flex flex-col items-center pt-8 pb-4 px-6 text-white backface-hidden"
+                    initial={{ rotateY: 180 }}
+                    animate={{ rotateY: isFlipped ? 0 : 180 }}
+                    transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+                    style={{ backfaceVisibility: 'hidden' }}
+                >
+                    <h3 className="text-xl font-bold mb-1">{currentVerb.kanji}</h3>
+                    <p className="text-xs text-slate-400 mb-6 uppercase tracking-wider">{currentVerb.romaji} - Forms</p>
+
+                    <div className="w-full space-y-2 overflow-y-auto no-scrollbar">
+                      {formsToDisplay.map(form => {
+                        const res = conjugate(currentVerb, form);
+                        return (
+                          <div key={form} className="flex justify-between items-center bg-slate-700/50 p-3 rounded-lg border border-slate-600">
+                             <span className="text-xs font-bold text-slate-400 uppercase w-20">{form}</span>
+                             <div className="text-right">
+                               <p className="font-bold text-sm">{res.kana}</p>
+                               <p className="text-[10px] text-slate-500 font-mono">{res.romaji}</p>
+                             </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                </motion.div>
+            </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <div className="flex gap-6 mt-8 w-full">
+        <button 
+            onClick={() => handleNext(false)}
+            className="flex-1 bg-white text-dojo-red h-14 rounded-2xl shadow-lg flex items-center justify-center hover:bg-red-50 active:scale-95 transition-all border border-red-100"
+        >
+            <ThumbsDown />
+        </button>
+        <button 
+            onClick={flipCard}
+            className="flex-1 bg-white text-gray-400 h-14 rounded-2xl shadow-lg flex items-center justify-center hover:bg-gray-50 active:scale-95 transition-all"
+        >
+            <RotateCw />
+        </button>
+        <button 
+            onClick={() => handleNext(true)}
+            className="flex-1 bg-dojo-indigo text-white h-14 rounded-2xl shadow-lg shadow-indigo-200 flex items-center justify-center hover:bg-indigo-700 active:scale-95 transition-all"
+        >
+            <ThumbsUp />
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+// ==========================================
+// SUB-COMPONENT: DRILL MODE (Original Logic)
+// ==========================================
 
 const FORMS: { key: ConjugationForm; label: string }[] = [
   { key: 'te', label: 'Te-Form (Connective)' },
@@ -18,7 +191,7 @@ const FORMS: { key: ConjugationForm; label: string }[] = [
   { key: 'volitional', label: 'Volitional Form (Let\'s)' },
 ];
 
-const VerbGym: React.FC<VerbGymProps> = ({ onAddXP }) => {
+const VerbDrill: React.FC<{ onAddXP: (n: number) => void }> = ({ onAddXP }) => {
   const [currentVerb, setCurrentVerb] = useState<Verb>(VERBS[0]);
   const [targetForm, setTargetForm] = useState<ConjugationForm>('te');
   const [input, setInput] = useState('');
@@ -37,6 +210,11 @@ const VerbGym: React.FC<VerbGymProps> = ({ onAddXP }) => {
     setStatus('idle');
     setTimeout(() => inputRef.current?.focus(), 100);
   };
+  
+  // Initial load
+  useEffect(() => {
+    generateNewChallenge();
+  }, []);
 
   const checkAnswer = () => {
     if (status === 'revealed') {
@@ -69,7 +247,12 @@ const VerbGym: React.FC<VerbGymProps> = ({ onAddXP }) => {
   };
 
   return (
-    <div className="p-6 h-full flex flex-col items-center justify-center bg-dojo-bg">
+    <motion.div 
+      initial={{ opacity: 0, x: 20 }} 
+      animate={{ opacity: 1, x: 0 }} 
+      exit={{ opacity: 0, x: -20 }}
+      className="flex flex-col items-center w-full"
+    >
       <div className="w-full max-w-sm mb-6 flex justify-between items-center text-sm text-gray-500 font-medium">
         <span>Streak: <span className="text-dojo-indigo font-bold">{streak} 🔥</span></span>
         <span>Verb Engine v1.2</span>
@@ -154,7 +337,7 @@ const VerbGym: React.FC<VerbGymProps> = ({ onAddXP }) => {
       <div className="mt-8 text-center opacity-50 text-xs max-w-xs">
         <p>Supports both Romaji (e.g., 'tabete') and Hiragana (e.g., 'たべて').</p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
