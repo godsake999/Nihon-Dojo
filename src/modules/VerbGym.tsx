@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, HelpCircle, CheckCircle, XCircle, Layers, Keyboard, RotateCw, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { ArrowRight, HelpCircle, CheckCircle, XCircle, Layers, Keyboard, RotateCw, ThumbsUp, ThumbsDown, List } from 'lucide-react';
 import { VERBS } from '../constants';
 import { conjugate } from '../utils/conjugator';
 import { Verb, ConjugationForm } from '../types';
@@ -9,7 +9,7 @@ interface VerbGymProps {
   onAddXP: (amount: number) => void;
 }
 
-type GymMode = 'flashcard' | 'drill';
+type GymMode = 'flashcard' | 'drill' | 'list';
 
 const VerbGym: React.FC<VerbGymProps> = ({ onAddXP }) => {
   const [mode, setMode] = useState<GymMode>('drill');
@@ -35,6 +35,14 @@ const VerbGym: React.FC<VerbGymProps> = ({ onAddXP }) => {
           >
             <Keyboard size={16} /> Input Drill
           </button>
+          <button
+            onClick={() => setMode('list')}
+            className={`flex-1 py-2 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${
+              mode === 'list' ? 'bg-dojo-indigo text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            <List size={16} /> List
+          </button>
         </div>
       </div>
 
@@ -42,8 +50,10 @@ const VerbGym: React.FC<VerbGymProps> = ({ onAddXP }) => {
         <AnimatePresence mode="wait">
           {mode === 'flashcard' ? (
             <VerbFlashcard key="flashcard" onAddXP={onAddXP} />
-          ) : (
+          ) : mode === 'drill' ? (
             <VerbDrill key="drill" onAddXP={onAddXP} />
+          ) : (
+            <VerbList key="list" />
           )}
         </AnimatePresence>
       </div>
@@ -342,3 +352,46 @@ const VerbDrill: React.FC<{ onAddXP: (n: number) => void }> = ({ onAddXP }) => {
 };
 
 export default VerbGym;
+
+// ==========================================
+// SUB-COMPONENT: LIST MODE
+// ==========================================
+const VerbList: React.FC = () => {
+  return (
+    <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        className="w-full h-full overflow-y-auto  pb-4"
+    >
+        <div className="flex justify-between items-end mb-4 px-2">
+            <h2 className="text-xl font-bold text-gray-800">Verb Collection</h2>
+            <span className="text-xs font-bold text-gray-400 uppercase">{VERBS.length} Verbs</span>
+        </div>
+        
+        <div className="space-y-3 pb-safe">
+            {VERBS.map(verb => (
+                <div key={verb.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:border-dojo-indigo transition-colors group">
+                    <div>
+                        <div className="flex items-end gap-2 mb-1">
+                            <span className="text-2xl font-black text-gray-800 leading-none">{verb.kanji}</span>
+                            <span className="text-sm text-dojo-indigo font-bold">{verb.kana}</span>
+                        </div>
+                        <p className="text-gray-500 text-sm font-medium">{verb.meaning}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                            verb.group === 'v1' ? 'bg-blue-100 text-blue-600' :
+                            verb.group === 'v2' ? 'bg-green-100 text-green-600' :
+                            'bg-purple-100 text-purple-600'
+                            }`}>
+                            {verb.group === 'v1' ? 'Godan' : verb.group === 'v2' ? 'Ichidan' : 'Irr.'}
+                            </span>
+                            <span className="text-xs text-gray-300 font-mono group-hover:text-dojo-indigo transition-colors">{verb.romaji}</span>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </motion.div>
+  );
+};
