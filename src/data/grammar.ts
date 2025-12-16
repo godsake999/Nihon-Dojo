@@ -2,7 +2,7 @@ export type GrammarPoint = {
     id: string;
     title: string;
     level: "N5" | "N4";
-    category: "Conjugation" | "Particle" | "Expression" | "Keigo";
+    category: "Conjugation" | "Particle" | "Expression" | "Keigo" | "Bunkei";
     formula: string;
     meaning: string;
     exampleJP: string;
@@ -241,27 +241,128 @@ export const grammarLibrary: GrammarPoint[] = [
         tips: "Lowers the speaker to show respect. Use only for your own actions."
     },
 
-    // --- NEW ADDITIONS ---
+    // --- BUNKEI (Sentence Patterns) N5 ---
     {
-        id: "exp-advice",
-        title: "Advice (Hou ga ii)",
-        level: "N4",
-        category: "Expression",
-        formula: "Ta-form + hou ga ii desu",
-        meaning: "You should... / It is better to...",
-        exampleJP: "薬を飲んだほうがいいです。",
-        exampleEN: "You should take medicine. (It is better if you take...)",
-        tips: "Uses Ta-form (Past) for affirmative advice. 'Te-form' is incorrect here!"
+        id: "bunkei-n5-desu",
+        title: "A wa B desu",
+        level: "N5",
+        category: "Bunkei",
+        formula: "A + wa + B + desu",
+        meaning: "A is B",
+        exampleJP: "私は学生です。",
+        exampleEN: "I am a student.",
+        tips: "Basic sentence structure. 'Wa' marks the topic."
     },
     {
-        id: "exp-tsumori",
-        title: "Intention (Tsumori)",
+        id: "bunkei-n5-ja-arimasen",
+        title: "A wa B ja arimasen",
+        level: "N5",
+        category: "Bunkei",
+        formula: "A + wa + B + ja arimasen",
+        meaning: "A is not B",
+        exampleJP: "これはペンじゃありません。",
+        exampleEN: "This is not a pen.",
+        tips: "'Dewa arimasen' is the formal version."
+    },
+    {
+        id: "bunkei-n5-mashou",
+        title: "V-mashou (Let's)",
+        level: "N5",
+        category: "Bunkei",
+        formula: "V(masu-stem) + mashou",
+        meaning: "Let's do V",
+        exampleJP: "帰りましょう。",
+        exampleEN: "Let's go home.",
+        tips: "Used to suggest an action to someone."
+    },
+    {
+        id: "bunkei-n5-tai",
+        title: "V-tai (Want to)",
+        level: "N5",
+        category: "Bunkei",
+        formula: "V(masu-stem) + tai desu",
+        meaning: "Want to do V",
+        exampleJP: "水が飲みたいです。",
+        exampleEN: "I want to drink water.",
+        tips: "Functions like an i-adjective (takunai, takatta)."
+    },
+
+    // --- BUNKEI (Sentence Patterns) N4 ---
+    {
+        id: "bunkei-n4-te-kudasai",
+        title: "V-te kudasai",
         level: "N4",
-        category: "Expression",
-        formula: "Dict-form / Nai-form + tsumori desu",
-        meaning: "I plan to... / I intend to...",
-        exampleJP: "来年、日本へ行くつもりです。",
-        exampleEN: "I plan to go to Japan next year.",
-        tips: "A cemented plan. Stronger than 'to omou' (I think I will)."
+        category: "Bunkei",
+        formula: "V(te-form) + kudasai",
+        meaning: "Please do V",
+        exampleJP: "日本語で話してください。",
+        exampleEN: "Please speak in Japanese.",
+        tips: "A polite request."
+    },
+    {
+        id: "bunkei-n4-te-mo-ii",
+        title: "V-te mo ii desu",
+        level: "N4",
+        category: "Bunkei",
+        formula: "V(te-form) + mo ii desu",
+        meaning: "You may do V / Is it okay if I...?",
+        exampleJP: "写真を撮ってもいいですか。",
+        exampleEN: "May I take a photo?",
+        tips: "Asking for permission."
+    },
+    {
+        id: "bunkei-n4-te-wa-ikemasen",
+        title: "V-te wa ikemasen",
+        level: "N4",
+        category: "Bunkei",
+        formula: "V(te-form) + wa ikemasen",
+        meaning: "You must not do V",
+        exampleJP: "ここでタバコを吸ってはいけません。",
+        exampleEN: "You must not smoke here.",
+        tips: "Expressing prohibition."
+    },
+    {
+        id: "bunkei-n4-nakereba",
+        title: "V-nakereba narimasen",
+        level: "N4",
+        category: "Bunkei",
+        formula: "V(nai-stem) + nakereba narimasen",
+        meaning: "Must do V",
+        exampleJP: "薬を飲まなければなりません。",
+        exampleEN: "I must take medicine.",
+        tips: "Lit: If I don't do V, it won't become."
+    },
+    {
+        id: "bunkei-n4-ta-koto-ga-aru",
+        title: "V-ta koto ga arimasu",
+        level: "N4",
+        category: "Bunkei",
+        formula: "V(ta-form) + koto ga arimasu",
+        meaning: "Have done V before",
+        exampleJP: "お寿司を食べたことがあります。",
+        exampleEN: "I have eaten sushi before.",
+        tips: "Experience in the past."
+    },
+    {
+        id: "bunkei-n4-tari-tari",
+        title: "V-tari V-tari shimasu",
+        level: "N4",
+        category: "Bunkei",
+        formula: "V(ta)ri, V(ta)ri shimasu",
+        meaning: "Do such things as V and V",
+        exampleJP: "日曜日は本を読んだり、テレビを見たりします。",
+        exampleEN: "On Sundays, I do things like read books and watch TV.",
+        tips: "Inexact list of actions."
+    },
+    {
+        id: "bunkei-n4-ndesu",
+        title: "~n desu (Explanation)",
+        level: "N4",
+        category: "Bunkei",
+        formula: "Plain form + n/no desu",
+        meaning: "It is the case that...",
+        exampleJP: "お腹が痛いんです。",
+        exampleEN: "It's that my stomach hurts (explaining why I look sick).",
+        tips: "Used for explaining reasons or asking for explanations."
     }
 ];

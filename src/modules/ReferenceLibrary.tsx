@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { Compass, Box, Link2, ToggleLeft, ToggleRight, ArrowRightLeft, ScrollText, ArrowRight, Search, Book, Filter, X } from 'lucide-react';
+import { Compass, Box, Link2, ToggleLeft, ToggleRight, ArrowRightLeft, ScrollText, ArrowRight, Search, Book, Filter, X, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { grammarLibrary, GrammarPoint } from '../data/grammar';
+import { bunkeiData, BunkeiPoint } from '../data/bunkei';
 
-type ReferenceMode = 'library' | 'visuals' | 'cheatsheets';
+type ReferenceMode = 'library' | 'visuals' | 'cheatsheets' | 'bunkei';
 
 const ReferenceLibrary: React.FC = () => {
   const [mode, setMode] = useState<ReferenceMode>('library');
@@ -11,28 +12,39 @@ const ReferenceLibrary: React.FC = () => {
   return (
     <div className="h-full flex flex-col bg-dojo-bg">
       {/* Tab Navigation */}
-      <div className="w-full max-w-sm px-6 pt-6 pb-2 mx-auto">
-        <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 flex">
+      <div className="w-full max-w-md px-4 pt-6 pb-2 mx-auto">
+        <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 flex overflow-hidden">
           <button
             onClick={() => setMode('library')}
-            className={`flex-1 py-2 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${mode === 'library' ? 'bg-dojo-indigo text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'
+            className={`py-3 text-xs sm:text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all duration-300 ${mode === 'library' ? 'flex-[2] bg-dojo-indigo text-white shadow-sm' : 'flex-1 text-gray-400 hover:bg-gray-50'
               }`}
           >
-            <Book size={16} /> Library
+            <Book size={18} />
+            {mode === 'library' && <span>Library</span>}
           </button>
           <button
             onClick={() => setMode('visuals')}
-            className={`flex-1 py-2 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${mode === 'visuals' ? 'bg-dojo-indigo text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'
+            className={`py-3 text-xs sm:text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all duration-300 ${mode === 'visuals' ? 'flex-[2] bg-dojo-indigo text-white shadow-sm' : 'flex-1 text-gray-400 hover:bg-gray-50'
               }`}
           >
-            <Compass size={16} /> Visuals
+            <Compass size={18} />
+            {mode === 'visuals' && <span>Visuals</span>}
           </button>
           <button
             onClick={() => setMode('cheatsheets')}
-            className={`flex-1 py-2 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${mode === 'cheatsheets' ? 'bg-dojo-indigo text-white shadow-sm' : 'text-gray-500 hover:bg-gray-50'
+            className={`py-3 text-xs sm:text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all duration-300 ${mode === 'cheatsheets' ? 'flex-[2] bg-dojo-indigo text-white shadow-sm' : 'flex-1 text-gray-400 hover:bg-gray-50'
               }`}
           >
-            <ScrollText size={16} /> Tables
+            <ScrollText size={18} />
+            {mode === 'cheatsheets' && <span>Tables</span>}
+          </button>
+          <button
+            onClick={() => setMode('bunkei')}
+            className={`py-3 text-xs sm:text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all duration-300 ${mode === 'bunkei' ? 'flex-[2] bg-dojo-indigo text-white shadow-sm' : 'flex-1 text-gray-400 hover:bg-gray-50'
+              }`}
+          >
+            <MessageSquare size={18} />
+            {mode === 'bunkei' && <span>Patterns</span>}
           </button>
         </div>
       </div>
@@ -41,6 +53,7 @@ const ReferenceLibrary: React.FC = () => {
         {mode === 'library' && <GrammarLibraryView />}
         {mode === 'visuals' && <VisualGuideView />}
         {mode === 'cheatsheets' && <CheatsheetView />}
+        {mode === 'bunkei' && <BunkeiView />}
       </div>
     </div>
   );
@@ -51,7 +64,7 @@ const ReferenceLibrary: React.FC = () => {
 // ==========================================
 const GrammarLibraryView: React.FC = () => {
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'All' | 'N5' | 'N4' | 'Conjugation' | 'Particle' | 'Expression' | 'Keigo'>('All');
+  const [filter, setFilter] = useState<'All' | 'N5' | 'N4' | 'Conjugation' | 'Particle' | 'Expression' | 'Keigo' | 'Bunkei'>('All');
 
   const filteredData = useMemo(() => {
     return grammarLibrary.filter(item => {
@@ -109,7 +122,7 @@ const GrammarLibraryView: React.FC = () => {
 
         {/* Filter Tabs */}
         <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-          {['All', 'N5', 'N4', 'Conjugation', 'Particle', 'Expression', 'Keigo'].map(f => (
+          {['All', 'N5', 'N4', 'Conjugation', 'Particle', 'Expression', 'Keigo', 'Bunkei'].map(f => (
             <button
               key={f}
               onClick={() => setFilter(f as any)}
@@ -146,6 +159,7 @@ const GrammarCard: React.FC<{ item: GrammarPoint }> = ({ item }) => {
     Particle: 'bg-red-100 text-red-700 border-red-200',
     Expression: 'bg-green-100 text-green-700 border-green-200',
     Keigo: 'bg-purple-100 text-purple-700 border-purple-200',
+    Bunkei: 'bg-orange-100 text-orange-700 border-orange-200',
   };
 
   const levelColor = item.level === 'N5' ? 'bg-blue-500' : 'bg-emerald-500';
@@ -412,6 +426,156 @@ const CheatsheetView: React.FC = () => {
     </motion.div>
   )
 }
+
+// ==========================================
+// 4. BUNKEI VIEW (Sentence Patterns)
+// ==========================================
+const BunkeiView: React.FC = () => {
+  const [search, setSearch] = useState('');
+  // We'll keep the N5 patterns from the grammar library for the "Basics" section
+  const n5Patterns = grammarLibrary.filter(item => item.category === 'Bunkei' && item.level === 'N5');
+
+  // Filter the new grouped Bunkei Data
+  const filteredBunkei = useMemo(() => {
+    if (!search) return bunkeiData;
+    const q = search.toLowerCase();
+    return bunkeiData.filter(item =>
+      item.meaning.toLowerCase().includes(q) ||
+      item.formula.toLowerCase().includes(q) ||
+      item.group.toLowerCase().includes(q)
+    );
+  }, [search]);
+
+  // Group by "Family"
+  const groupedData = useMemo(() => {
+    const groups: Record<string, BunkeiPoint[]> = {};
+    filteredBunkei.forEach(item => {
+      if (!groups[item.group]) groups[item.group] = [];
+      groups[item.group].push(item);
+    });
+    // Define exact order based on user request/logical flow
+    const order = ['Fact', 'Change', 'Opinion', 'Probability', 'Explanation'];
+    return order
+      .filter(key => groups[key] && groups[key].length > 0)
+      .map(key => ({ title: key, items: groups[key] }));
+  }, [filteredBunkei]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="space-y-12"
+    >
+      <div className="text-center space-y-2 mb-8">
+        <h2 className="text-2xl font-black text-gray-800">Sentence Patterns (Bunkei)</h2>
+        <p className="text-gray-500 text-sm max-w-md mx-auto">Mastering these patterns is the key to forming natural Japanese sentences.</p>
+      </div>
+
+      {/* Internal Search Bar */}
+      <div className="relative max-w-lg mx-auto mb-10">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <input
+          type="text"
+          placeholder="Search patterns (e.g., 'Fact', 'Can do', 'koto')..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:border-dojo-indigo outline-none shadow-sm transition-all"
+        />
+        {search && (
+          <button
+            onClick={() => setSearch('')}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
+
+      {/* N5 Patterns (Legacy support from GrammarLibrary) */}
+      {!search && (
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <span className="bg-blue-500 text-white font-black px-3 py-1 rounded-lg text-sm shadow-blue-200 shadow-md">N5</span>
+            <h3 className="text-xl font-bold text-gray-700">Essential Patterns (Basics)</h3>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {n5Patterns.map(item => (
+              <GrammarCard key={item.id} item={item} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* N4 Patterns (New Grouped Data) */}
+      <div className="space-y-10">
+        <div className="flex items-center gap-3">
+          <span className="bg-emerald-500 text-white font-black px-3 py-1 rounded-lg text-sm shadow-emerald-200 shadow-md">N4</span>
+          <h3 className="text-xl font-bold text-gray-700">Advanced Patterns (Mastery)</h3>
+        </div>
+
+        {groupedData.map((group) => (
+          <div key={group.title} className="bg-gray-50/50 p-4 rounded-3xl border border-gray-100">
+            <h4 className="text-lg font-black text-gray-400 uppercase tracking-widest px-2 mb-4 drop-shadow-sm border-l-4 border-dojo-indigo pl-3">{group.title}</h4>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {group.items.map(item => (
+                <BunkeiCard key={item.id} item={item} />
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {groupedData.length === 0 && (
+          <div className="text-center py-10 text-gray-400">
+            <p>No N4 patterns found matching your search.</p>
+          </div>
+        )}
+      </div>
+
+    </motion.div>
+  );
+};
+
+const BunkeiCard: React.FC<{ item: BunkeiPoint }> = ({ item }) => {
+  const tagColors: Record<string, string> = {
+    Fact: 'bg-blue-100 text-blue-700',
+    Change: 'bg-orange-100 text-orange-700',
+    Opinion: 'bg-purple-100 text-purple-700',
+    Probability: 'bg-pink-100 text-pink-700',
+    Explanation: 'bg-teal-100 text-teal-700',
+  };
+
+  const groupColor = tagColors[item.group] || 'bg-gray-100 text-gray-700';
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden flex flex-col h-full">
+      {/* Header: Formula */}
+      <div className="bg-slate-50 p-3 border-b border-slate-100 flex items-center justify-between gap-2">
+        <code className="font-mono text-xs sm:text-sm font-bold text-indigo-600 bg-white px-2 py-1 rounded border border-indigo-100 shadow-sm flex-1 break-words">
+          {item.formula}
+        </code>
+        <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-full shrink-0 ${groupColor}`}>
+          {item.tag}
+        </span>
+      </div>
+
+      {/* Body: Meaning */}
+      <div className="p-4 flex-1">
+        <p className="font-bold text-gray-800 text-md leading-relaxed">
+          {item.meaning}
+        </p>
+      </div>
+
+      {/* Footer: Examples */}
+      <div className="p-4 pt-0 text-sm">
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-lg p-3 border border-gray-100">
+          <p className="font-medium text-gray-800 mb-0.5">{item.exampleJP}</p>
+          <p className="text-xs text-gray-400">{item.exampleEN}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // ==========================================
 // HELPERS
